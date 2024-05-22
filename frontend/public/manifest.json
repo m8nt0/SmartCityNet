@@ -1,0 +1,8 @@
+{
+    "short_name": "SmartCityNet",
+    "name": "SmartCityNet",
+    "start_url": ".",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "description": "A comprehensive smart city network simulation."
+}

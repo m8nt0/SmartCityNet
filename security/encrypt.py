@@ -1,32 +1,42 @@
-from OpenSSL import crypto
+import os
+from cryptography.fernet import Fernet
 
 def generate_key():
-    key = crypto.PKey()
-    key.generate_key(crypto.TYPE_RSA, 2048)
-    return key
+    key = Fernet.generate_key()
+    with open("secret.key", "wb") as key_file:
+        key_file.write(key)
 
-def save_key(key, filename):
-    with open(filename, "wb") as key_file:
-        key_file.write(crypto.dump_privatekey(crypto.FILETYPE_PEM, key))
+def load_key():
+    return open("secret.key", "rb").read()
 
-def generate_certificate(key):
-    cert = crypto.X509()
-    cert.get_subject().CN = "SmartCityNet"
-    cert.set_serial_number(1000)
-    cert.gmtime_adj_notBefore(0)
-    cert.gmtime_adj_notAfter(10*365*24*60*60)
-    cert.set_issuer(cert.get_subject())
-    cert.set_pubkey(key)
-    cert.sign(key, 'sha256')
-    return cert
+def encrypt_file(file_name):
+    key = load_key()
+    fernet = Fernet(key)
 
-def save_certificate(cert, filename):
-    with open(filename, "wb") as cert_file:
-        cert_file.write(crypto.dump_certificate(crypto.FILETYPE_PEM, cert))
+    with open(file_name, "rb") as file:
+        file_data = file.read()
 
-key = generate_key()
-save_key(key, "private.key")
+    encrypted_data = fernet.encrypt(file_data)
 
-cert = generate_certificate(key)
-save_certificate(cert, "certificate.crt")
+    with open(file_name, "wb") as file:
+        file.write(encrypted_data)
 
+def decrypt_file(file_name):
+    key = load_key()
+    fernet = Fernet(key)
+
+    with open(file_name, "rb") as file:
+        encrypted_data = file.read()
+
+    decrypted_data = fernet.decrypt(encrypted_data)
+
+    with open(file_name, "wb") as file:
+        file.write(decrypted_data)
+
+if __name__ == "__main__":
+    generate_key()
+    file_name = "example.txt"
+    encrypt_file(file_name)
+    print(f"{file_name} encrypted successfully.")
+    decrypt_file(file_name)
+    print(f"{file_name} decrypted successfully.")

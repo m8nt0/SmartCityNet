@@ -1,10 +1,13 @@
+# ns3_simulation.py
+
+import ns.applications
 import ns.core
-import ns.network
 import ns.internet
+import ns.network
 import ns.point_to_point
 import ns.applications
 
-def main():
+def run_simulation():
     ns.core.LogComponentEnable("UdpEchoClientApplication", ns.core.LOG_LEVEL_INFO)
     ns.core.LogComponentEnable("UdpEchoServerApplication", ns.core.LOG_LEVEL_INFO)
 
@@ -21,11 +24,12 @@ def main():
     stack.Install(nodes)
 
     address = ns.internet.Ipv4AddressHelper()
-    address.SetBase(ns.network.Ipv4Address("10.1.1.0"), ns.network.Ipv4Mask("255.255.255.0"))
+    address.SetBase(ns.internet.Ipv4Address("10.1.1.0"), ns.internet.Ipv4Mask("255.255.255.0"))
 
     interfaces = address.Assign(devices)
 
     echoServer = ns.applications.UdpEchoServerHelper(9)
+
     serverApps = echoServer.Install(nodes.Get(1))
     serverApps.Start(ns.core.Seconds(1.0))
     serverApps.Stop(ns.core.Seconds(10.0))
@@ -42,5 +46,5 @@ def main():
     ns.core.Simulator.Run()
     ns.core.Simulator.Destroy()
 
-if __name__ == '__main__':
-    main()
+if __name__ == "__main__":
+    run_simulation()
